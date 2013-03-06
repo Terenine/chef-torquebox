@@ -79,6 +79,25 @@ runit_service "torquebox" do
   run_state node[:torquebox][:run_state]
 end
 
+directory "/etc/jboss-as" do
+  owner "root"
+  group "root"
+  mode 0755
+  action :create
+end
+
+template "/etc/jboss-as/jboss-as.conf" do
+  # variables({ :options => node[:torquebox] })
+  source "jboss-as-conf.erb"
+  owner "torquebox"
+  group "torquebox"
+  mode "0644"
+end
+
+execute "chkconfig the jboss stuff" do
+  command "chkconfig --add jboss-as-standalone"
+end
+
 announce(:torquebox, :server)
 
 # otherwise bundler won't work in jruby
