@@ -1,0 +1,29 @@
+LoadModule slotmem_module       modules/mod_slotmem.so
+LoadModule proxy_cluster_module modules/mod_proxy_cluster.so
+LoadModule advertise_module     modules/mod_advertise.so
+LoadModule manager_module       modules/mod_manager.so
+
+<Location /mod_cluster_manager>
+    SetHandler mod_cluster-manager
+    AllowDisplay On
+</Location>
+
+Listen 127.0.0.1:<%= node[:mod_cluster][:mcpm_port] %>
+<VirtualHost <%= node[:mod_cluster][:mcpm_bind_ip_resolved] %>:<%= node[:mod_cluster][:mcpm_port] %>>
+
+  <Directory />
+    Order deny,allow
+    Deny from all
+    Allow from all
+  </Directory>
+
+  KeepAliveTimeout 60
+  MaxKeepAliveRequests 0
+
+  EnableMCPMReceive
+
+  ManagerBalancerName <%= node[:mod_cluster][:balancer_name] %>
+  AllowDisplay On
+  AdvertiseFrequency 5
+
+</VirtualHost>
